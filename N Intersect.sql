@@ -1,3 +1,4 @@
+--http://sqlfiddle.com/#!18/2f1d9/55
 -- DEFINING A SCHEMA TO EXPLAIN THE EXAMPLE
 CREATE TABLE A(
     ID INT PRIMARY KEY IDENTITY(1,1),
@@ -48,12 +49,26 @@ SELECT 3, 'ORANGE'
 
 ;WITH CTE AS (
   SELECT
-    A.ID A_ID, -- For the participating entities of A
+    A.ID A_ID, -- For the participating rows of A
     B.NAME B_NAME -- What is the common relating B NAME
   FROM A
   INNER JOIN B
         ON B.A_ID = A.ID  
   WHERE A.NAME IN ('FOO', 'BAZ') -- Define participants in intersect of A
+  
+  /* The above where clause will make your code act as if you're executing
+  SELECT B.NAME FROM A
+  INNER JOIN B
+    ON B.A_ID = A.ID
+  WHERE B.NAME = 'FOO'
+  
+  INTERSECT
+  
+  SELECT B.NAME FROM A
+  INNER JOIN B
+    ON B.A_ID = A.ID
+  WHERE B.NAME = 'BAZ'
+  */
   
   -- You should not need a GROUP BY unless you have duplicates of A-B combinations
   GROUP BY A.ID, B.NAME
@@ -69,3 +84,5 @@ CROSS APPLY(
 WHERE A.C = B.C -- if the amount of participants is equal to the 
                 -- amount containing the value, we know they each have it in common
 GROUP BY B_NAME -- We want the common values grouped for a distinct list
+
+-- Returns the APPLE and BANANA because they both have FOO and BAZ
